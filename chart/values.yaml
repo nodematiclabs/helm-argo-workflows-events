@@ -1,0 +1,10 @@
+ip: argo-example-com
+argo-workflows:
+  server:
+    serviceType: NodePort
+    serviceAnnotations:
+      cloud.google.com/backend-config: '{"default": "argo-workflows"}'
+    extraArgs: ["--auth-mode=server"]
+    serviceAccount:
+      create: true
+      name: "argo"

@@ -1,0 +1,40 @@
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: argo-workflows
+spec:
+  domains:
+  - argo.example.com
+---
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: argo-workflows
+spec:
+  redirectToHttps:
+    enabled: true
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: argo-workflows
+spec:
+  securityPolicy:
+    name: "argo-example-com"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argo-workflows
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: {{ .Values.ip }}
+    networking.gke.io/managed-certificates: argo-workflows
+    networking.gke.io/v1beta1.FrontendConfig: argo-workflows
+    kubernetes.io/ingress.class: "gce"
+spec:
+  defaultBackend:
+    service:
+      name: "{{ .Release.Name }}-argo-workflows-server"
+      port:
+        number: 2746
